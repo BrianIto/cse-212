@@ -1,4 +1,7 @@
-﻿/// <summary>
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+
+/// <summary>
 /// Maintain a Customer Service Queue.  Allows new customers to be 
 /// added and allows customers to be serviced.
 /// </summary>
@@ -11,20 +14,49 @@ public class CustomerService {
         // Test Cases
 
         // Test 1
-        // Scenario: 
-        // Expected Result: 
+        // Scenario: Testing a default max size when given -1
+        // Expected Result: Should fallback to 10
         Console.WriteLine("Test 1");
-
+        var customerService = new CustomerService(-1);
+        Assert.AreEqual(10, customerService._maxSize);
         // Defect(s) Found: 
 
         Console.WriteLine("=================");
 
         // Test 2
-        // Scenario: 
-        // Expected Result: 
+        // Scenario: AddNewCustomer should add a new customer into the queue
+        // Expected Result: The queue should have one element
         Console.WriteLine("Test 2");
+        var customerService2 = new CustomerService(5);
+        customerService2.AddNewCustomer();
+        Assert.AreEqual(1, customerService2._queue.Count);
 
-        // Defect(s) Found: 
+                Console.WriteLine("=================");
+
+        // Test3 
+        // Scenario: If the queue is full should throw an error 
+        // Expected Result: Throw an error when queue is full
+        Console.WriteLine("Test 3");
+        var customerService3 = new CustomerService(1);
+        customerService3.AddNewCustomer();
+        Assert.AreEqual(1, customerService3._queue.Count);
+        customerService3.AddNewCustomer();
+        Assert.AreEqual(1, customerService3._queue.Count);
+        //Defects found: AddNewCustomer was checking > than maxSize instead of >=
+
+                Console.WriteLine("=================");
+        // Test4 
+        // Scenario: If the queue is full should throw an error 
+        // Expected Result: Throw an error when queue is full
+        Console.WriteLine("Test 4");
+        var customerService4 = new CustomerService(3);
+        customerService4.AddNewCustomer();
+        Assert.AreEqual(1, customerService4._queue.Count);
+        customerService4.ServeCustomer();
+        Assert.AreEqual(0, customerService4._queue.Count);
+        customerService4.ServeCustomer();
+        // Defect(s) Found: Serve customer was removing before getting the data,
+        // and no error was shown when serve customer was called on a empty array.
 
         Console.WriteLine("=================");
 
@@ -67,7 +99,7 @@ public class CustomerService {
     /// </summary>
     private void AddNewCustomer() {
         // Verify there is room in the service queue
-        if (_queue.Count > _maxSize) {
+        if (_queue.Count >= _maxSize) {
             Console.WriteLine("Maximum Number of Customers in Queue.");
             return;
         }
@@ -88,8 +120,12 @@ public class CustomerService {
     /// Dequeue the next customer and display the information.
     /// </summary>
     private void ServeCustomer() {
-        _queue.RemoveAt(0);
+        if (_queue.Count == 0) {
+            Console.WriteLine("No Customers in Queue.");
+            return;
+        }
         var customer = _queue[0];
+        _queue.RemoveAt(0);
         Console.WriteLine(customer);
     }
 
